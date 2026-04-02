@@ -1,0 +1,151 @@
+openapi: 3.0.3
+info:
+  title: URL Shortener API
+  version: 1.0.0
+  description: Internal URL shortener for marketing team
+
+servers:
+  - url: https://acme.co
+    description: Production
+
+paths:
+  /shorten:
+    post:
+      operationId: createShortURL
+      summary: Create a shortened URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  maxLength: 2048
+                  example: "https://www.example.com/very/long/path"
+                slug:
+                  type: string
+                  pattern: "^[a-zA-Z0-9-]{3,30}$"
+                  example: "spring-sale"
+      responses:
+        "201":
+          description: Short URL created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShortURL"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Slug already taken
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /{code}:
+    get:
+      operationId: redirectToURL
+      summary: Redirect to original URL
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-zA-Z0-9]{7}$|^[a-zA-Z0-9-]{3,30}$"
+      responses:
+        "301":
+          description: Redirect to original URL
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+        "404":
+          description: Short code not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /{code}/stats:
+    get:
+      operationId: getURLStats
+      summary: Get click analytics for a short URL
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Click analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/URLStats"
+        "404":
+          description: Short code not found
+
+components:
+  schemas:
+    ShortURL:
+      type: object
+      properties:
+        short_code:
+          type: string
+          example: "abc1234"
+        short_url:
+          type: string
+          format: uri
+          example: "https://acme.co/abc1234"
+        original_url:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+
+    URLStats:
+      type: object
+      properties:
+        short_code:
+          type: string
+        total_clicks:
+          type: integer
+        daily_clicks:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              count:
+                type: integer
+        top_referrers:
+          type: array
+          items:
+            type: object
+            properties:
+              referrer:
+                type: string
+              count:
+                type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
