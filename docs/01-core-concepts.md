@@ -17,20 +17,20 @@ An **agent** is an LLM running in an autonomous loop that can **plan**, **act**,
 │   ┌─────────┐                               │
 │   │  PLAN   │ ← LLM reasons about the task  │
 │   └────┬────┘                               │
-│        ↓                                     │
+│        ↓                                    │
 │   ┌─────────┐                               │
 │   │   ACT   │ ← Calls tools (run code,      │
-│   └────┬────┘   edit files, search, etc.)    │
-│        ↓                                     │
+│   └────┬────┘   edit files, search, etc.)   │
+│        ↓                                    │
 │   ┌─────────┐                               │
-│   │ OBSERVE │ ← Reads tool output, decides   │
-│   └────┬────┘   if done or needs more work   │
-│        ↓                                     │
-│   Done? ──No──→ back to PLAN                 │
-│     │                                        │
-│    Yes                                       │
-│     ↓                                        │
-│   Return result to user                      │
+│   │ OBSERVE │ ← Reads tool output, decides  │
+│   └────┬────┘   if done or needs more work  │
+│        ↓                                    │
+│   Done? ──No──→ back to PLAN                │
+│     │                                       │
+│    Yes                                      │
+│     ↓                                       │
+│   Return result to user                     │
 └─────────────────────────────────────────────┘
 ```
 
